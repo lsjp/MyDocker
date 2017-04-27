@@ -1,0 +1,204 @@
+var crypto = require("crypto");
+var xml = require("node-xml");
+//var weixinDataAdapter = require('../util/weixinDataAdapter');
+//var weixinuserModel = require('../model/weixinuser');
+
+function isLegel(signature, timestamp, nonce, token) {
+    var array = new Array();
+    array[0] = timestamp;
+    array[1] = nonce;
+    array[2] = token;
+    array.sort();
+    var hasher = crypto.createHash("sha1");
+    var msg = array[0] + array[1] + array[2];
+    hasher.update(msg);
+    var msg = hasher.digest('hex');
+    if (msg == signature) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function processMessage(data, response) {
+    var ToUserName = "";
+    var FromUserName = "";
+    var CreateTime = "";
+    var MsgType = "";
+    var Content = "";
+    var Location_X = "";
+    var Location_Y = "";
+    var Scale = 1;
+    var Label = "";
+    var PicUrl = "";
+    var FuncFlag = "";
+
+    var tempName = "";
+    var parse = new xml.SaxParser(function (cb) {
+        cb.onStartElementNS(function (elem, attra, prefix, uri, namespaces) {
+            tempName = elem;
+        });
+
+        cb.onCharacters(function (chars) {
+            chars = chars.replace(/(^\s*)|(\s*$)/g, "");
+            if (tempName == "CreateTime") {
+                CreateTime = chars;
+            } else if (tempName == "Location_X") {
+                Location_X = cdata;
+            } else if (tempName == "Location_Y") {
+                Location_Y = cdata;
+            } else if (tempName == "Scale") {
+                Scale = cdata;
+            }
+        });
+
+        cb.onCdata(function (cdata) {
+            if (tempName == "ToUserName") {
+                ToUserName = cdata;
+                console.log("ToUserName:" + cdata);
+            } else if (tempName == "FromUserName") {
+                FromUserName = cdata;
+                console.log("FromUserName:" + cdata);
+            } else if (tempName == "MsgType") {
+                MsgType = cdata;
+                console.log("MsgType:" + cdata);
+            } else if (tempName == "Content") {
+                Content = cdata;
+                console.log("Content:" + cdata);
+            } else if (tempName == "PicUrl") {
+                PicUrl = cdata;
+                console.log("PicUrl:" + cdata);
+            } else if (tempName == "Label") {
+                Label = cdata;
+                console.log("Label:" + cdata);
+            }
+
+        });
+
+        cb.onEndElementNS(function (elem, prefix, uri) {
+            tempName = "";
+        });
+
+        cb.onEndDocument(function () {
+            console.log("onEndDocument");
+            tempName = "";
+            var date = new Date();
+            var yy = date.getYear();
+            var MM = date.getMonth() + 1;
+            var dd = date.getDay();
+            var hh = date.getHours();
+            var mm = date.getMinutes();
+            var ss = date.getSeconds();
+            var sss = date.getMilliseconds();
+            var result = Date.UTC(yy, MM, dd, hh, mm, ss, sss);
+            var msg = "";
+            if (MsgType == "text") {
+                msg = Content;
+            } else if (MsgType = "location") {
+                msg = "你所在的位置: 经度：" + Location_X + "纬度：" + Location_Y;
+            } else if (MsgType = "image") {
+                msg = "你发的图片是：" + PicUrl;
+            }
+            console.log(msg);
+            var responseMeg = "hi " + FromUserName + ". i'm" + ToUserName + "your said:" + msg + "!!!";
+
+            if (msg == "baidu") {
+                responseMeg = "http://baidu.com";
+            }
+            sendTextMessage(FromUserName, ToUserName, CreateTime, responseMeg, FuncFlag, response);
+        });
+    });
+    parse.parseString(data);
+
+    return FromUserName;
+}
+
+/**
+ * send response message
+ * @param FromUserName
+ * @param ToUserName
+ * @param CreateTime
+ * @param responseMeg
+ * @param FuncFlag
+ * @param response
+ */
+function sendTextMessage(FromUserName, ToUserName, CreateTime, responseMeg, FuncFlag, response) {
+    // var textMsg = '<xml><ToUserName>' + FromUserName + '</ToUserName><FromUserName>' + ToUserName + '</FromUserName><CreateTime>' + CreateTime + '</CreateTime><MsgType>text</MsgType><Content>' + responseMeg + '</Content></xml>';
+
+    /**FromUserName 消息发送方
+     ToUserName 消息接收方
+     CreateTime 消息创建时间
+     MsgType 消息类型，图文消息必须填写news
+     Content 消息内容，图文消息可填空
+     ArticleCount 图文消息个数，限制为10条以内
+     Articles 多条图文消息信息，默认第一个item为大图
+     Title 图文消息标题
+     Description 图文消息描述
+     PicUrl 图片链接，支持JPG、PNG格式，较好的效果为大图640*320，小图80*80，限制图片链接的域名需要与开发者填写的基本资料中的Url一致
+     Url 点击图文消息跳转链接*/
+    var item1 = '<item><Title>title1</Title><Description>description1</Description><PicUrl>http://wx.qlogo.cn/mmopen/ic3ibEjvYaKJxGxaTicljicVUMa2iaJYibYyJ1AwhEUicbnQ7iasoQ2xn5rTcA4HXoF7xBrKQjq1EyBJgm6jtjiaa6sMMkm6877FPMWTy/0</PicUrl><Url>http://www.baidu.com/</Url></item>';
+    var item2 = '<item><Title>title2</Title><Description>description2</Description><PicUrl>http://wx.qlogo.cn/mmopen/ajNVdqHZLLBszhPbUufTovt6AvehQjBZdB0KmyicXfTwtvewBQLbXkXa2TapsZlngaq85M7KI7micvPawyYW7lQg/0</PicUrl><Url>http://www.baidu.com/</Url></item>';
+    var articlesMsg = '<xml><ToUserName>' + FromUserName + '</ToUserName><FromUserName>' + ToUserName + '</FromUserName><CreateTime>' + CreateTime + '</CreateTime><MsgType>news</MsgType><Content>demo</Content><ArticleCount>2</ArticleCount><Articles>' + item1 + item2 + '</Articles> <FuncFlag>1</FuncFlag></xml>';
+    response.writeHead(200, {
+        'Content-Type': 'text/xml'
+    });
+
+    response.end(articlesMsg);
+}
+
+///**
+// * search user
+// * @param data
+// * @returns {*}
+// */
+//function searchUser(data) {
+//    console.log("db find weixin user");
+//    var formatedData = weixinDataAdapter.format(data);
+//    return weixinuserModel.findByOpenId(formatedData.openid).then(function (data) {
+//        return data;
+//    })
+//}
+//
+///**
+// * add user
+// * @param data
+// * @returns {*}
+// */
+//function addUser(data) {
+//    console.log("insert weixin user!!!");
+//    var formatedData = weixinDataAdapter.format(data);
+//    return weixinuserModel.add(formatedData).then(function (data) {
+//        return data;
+//    })
+//}
+//
+///**
+// * update user infomation
+// * @param data
+// * @returns {*}
+// */
+//
+//function updateUser(id, data) {
+//    console.log("update weixin user");
+//    var formatedData = weixinDataAdapter.format(data);
+//    return weixinuserModel.update(id, formatedData).then(function (data) {
+//        return data;
+//    })
+//}
+///**
+// * find all active user
+// * @type {isLegel}
+// */
+//function searchAll() {
+//    console.log("search all weixin user");
+//    return weixinuserModel.findAll().then(function (data) {
+//        return data;
+//    })
+//}
+
+//module.exports.isLegel = isLegel;
+//module.exports.processMessage = processMessage;
+//module.exports.searchUser = searchUser;
+//module.exports.addUser = addUser;
+//module.exports.updateUser = updateUser;
+//module.exports.searchAllUsers = searchAll;
