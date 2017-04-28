@@ -25,4 +25,6 @@ docker pull node
 1. docker run -it --rm --name my-running-script -v "$PWD":/usr/src/app -w /usr/src/app node:4 node your-daemon-or-script.js
 
 #### runnable:  <font color=red>--name node1</font>
- docker run -itd --name node1 -v /usr/local/gitroot/MyDocker/myapp:/usr/src/app -w /usr/src/app node node bin/www
+1. docker run -itd --name node1 -v /usr/local/gitroot/MyDocker/myapp:/usr/src/app -w /usr/src/app node node bin/www
+
+2. docker run -itd -p 4000:3000 --name node1 -v /usr/local/gitroot/MyDocker/myapp:/usr/src/app -w /usr/src/app node:6.10.2 node bin/www
