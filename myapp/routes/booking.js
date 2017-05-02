@@ -165,8 +165,8 @@ module.exports = function (passport) {
         return new Promise(function (resolve, reject) {
             var resposeData = "";
 
-            var appid = "wx012c887a756517ba";
-            var secret = "47a474fe33c62c99e17ed009f0452b72";
+            var appid = "wx4fd9701c321b527e";
+            var secret = "eyBQ86xTkn3ZpOnip0LSMLBv9XYFlYWiWfKtAHNaItl";
             var url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + appid + "&secret=" + secret;
             https.get(
                 url
