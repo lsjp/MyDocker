@@ -24,6 +24,7 @@ module.exports = function (passport) {
     });
 
     router.post('/', function (req, res) {
+        console.log(req);
         var reqData = {
             //"ip": req.connection.remoteAddress,
             // TODO will be change when change weixin account
