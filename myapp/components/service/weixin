@@ -196,8 +196,8 @@ function sendTextMessage(FromUserName, ToUserName, CreateTime, responseMeg, Func
 //    })
 //}
 
-//module.exports.isLegel = isLegel;
-//module.exports.processMessage = processMessage;
+module.exports.isLegel = isLegel;
+module.exports.processMessage = processMessage;
 //module.exports.searchUser = searchUser;
 //module.exports.addUser = addUser;
 //module.exports.updateUser = updateUser;
