@@ -123,7 +123,7 @@ function processMessage(data, response) {
  * @param response
  */
 function sendTextMessage(FromUserName, ToUserName, CreateTime, responseMeg, FuncFlag, response) {
-    // var textMsg = '<xml><ToUserName>' + FromUserName + '</ToUserName><FromUserName>' + ToUserName + '</FromUserName><CreateTime>' + CreateTime + '</CreateTime><MsgType>text</MsgType><Content>' + responseMeg + '</Content></xml>';
+    var textMsg = '<xml><ToUserName>' + FromUserName + '</ToUserName><FromUserName>' + ToUserName + '</FromUserName><CreateTime>' + CreateTime + '</CreateTime><MsgType>text</MsgType><Content>' + responseMeg + '</Content></xml>';
 
     /**FromUserName 消息发送方
      ToUserName 消息接收方
@@ -143,7 +143,7 @@ function sendTextMessage(FromUserName, ToUserName, CreateTime, responseMeg, Func
         'Content-Type': 'text/xml'
     });
 
-    response.end(articlesMsg);
+    response.end(textMsg);
 }
 
 ///**

@@ -24,7 +24,6 @@ module.exports = function (passport) {
     });
 
     router.post('/', function (req, res) {
-        console.log(req);
         var reqData = {
             //"ip": req.connection.remoteAddress,
             // TODO will be change when change weixin account
@@ -77,6 +76,7 @@ module.exports = function (passport) {
                 var openid = accessObject.openid;
 
                 var url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=" + access_token + "&openid=" + openid;
+                console.log("get user url:" + url);
                 https.get(
                     url
                     , function (res) {
